@@ -1,114 +1,142 @@
 import csv
+import json
+import os
+
+DATA_FILE = "data.json"
+
+def save_data(expenses, categories, budgets, filename=DATA_FILE):
+    data = {
+        "expenses": expenses,
+        "categories": categories,
+        "budgets": budgets
+    }
+    with open(filename, "w") as f:
+        json.dump(data, f, indent=4)
+    print("Data saved successfully.")
+
+def load_data(filename=DATA_FILE):
+    if not os.path.exists(filename):
+        return {}, {}, {}
+    with open(filename, "r") as f:
+        data = json.load(f)
+    return data.get("expenses", {}), data.get("categories", {}), data.get("budgets", {})
+
+
 
 def main():
+    expenses, categories, budgets = load_data()
     expenses = {}
     categories = {}
     budgets = {}
-    while True:
-        print("--Expense Tracker--")
-        print("1. Manage Expenses")
-        print("2. Manage Categories")
-        print("3. Manage Budgets")
-        print("0. Exit")
-        try:
-            option = int(input("Select a feature to manage:"))
-        except ValueError:
-            print("Please enter a valid number.")
-            continue
-        if option == 1:
-            while True:
-                print("1. Add Expense")
-                print("2. Update Expense")
-                print("3. Delete Expense")
-                print("4. View Expenses")
-                print("5. View Summary Of Expenses")
-                print("6. View Summary Of Expenses For Specific Month")
-                print("7. Import From CSV")
-                print("8. Export To CSV")
-                print("0. Exit")
-                if expense_option == 1:
-                    add_expense(expenses)
+    try:
+        while True:
+            print("--Expense Tracker--")
+            print("1. Manage Expenses")
+            print("2. Manage Categories")
+            print("3. Manage Budgets")
+            print("0. Exit")
+            try:
+                option = int(input("Select a feature to manage:"))
+            except ValueError:
+                print("Please enter a valid number.")
+                continue
+            if option == 1:
+                while True:
+                    print("1. Add Expense")
+                    print("2. Update Expense")
+                    print("3. Delete Expense")
+                    print("4. View Expenses")
+                    print("5. View Summary Of Expenses")
+                    print("6. View Summary Of Expenses For Specific Month")
+                    print("7. Import From CSV")
+                    print("8. Export To CSV")
+                    print("0. Exit")
+                    try:
+                        expense_option = int(input("Select an option:"))
+                    except ValueError:
+                        print("Please enter a valid number.")
+                        continue
+                    if expense_option == 1:
+                        add_expense(expenses)
         
-                elif expense_option == 2:
-                    update_expense(expenses)
+                    elif expense_option == 2:
+                        update_expense(expenses)
         
-                elif expense_option == 3:
-                    delete_expense(expenses)
+                    elif expense_option == 3:
+                        delete_expense(expenses)
         
-                elif expense_option == 4:
-                    view_expenses(expenses)
+                    elif expense_option == 4:
+                        view_expenses(expenses)
         
-                elif expense_option == 5:
-                    view_expense_summary(expenses)
+                    elif expense_option == 5:
+                        view_expense_summary(expenses)
         
-                elif expense_option == 6:
-                    view_expense_summary_for_month(expenses)
-                elif expense_option == 8:
-                    export_expenses_to_csv(expenses)
-                elif expense_option == 0:
-                    break
-                else:
-                    print("Error: Invalid Option")
-                try:
-                    expense_option = int(input("Select an option:"))
-                except ValueError:
-                    print("Please enter a valid number.")
-                    continue
-        elif option == 2:
-            while True:
-                print("1. Create Category")
-                print("2. Add To Category")
-                print("3. Filter By Category")
-                print("4. Import From CSV")
-                print("5. Export To CSV")
-                print("0. Exit")
-                if category_option == 1:
-                    create_category(categories)
+                    elif expense_option == 6:
+                        view_expense_summary_for_month(expenses)
+                    elif expense_option == 8:
+                        export_expenses_to_csv(expenses)
+                    elif expense_option == 0:
+                        break
+                    else:
+                        print("Error: Invalid Option")
+            elif option == 2:
+                while True:
+                    print("1. Create Category")
+                    print("2. Add To Category")
+                    print("3. Filter By Category")
+                    print("4. Import From CSV")
+                    print("5. Export To CSV")
+                    print("0. Exit")
+                    try:
+                        category_option = int(input("Select an option:"))
+                    except ValueError:
+                        print("Please enter a valid number.")
+                        continue
+                    if category_option == 1:
+                        create_category(categories)
         
-                elif category_option == 2:
-                    add_to_category(categories, expenses)
+                    elif category_option == 2:
+                        add_to_category(categories, expenses)
         
-                elif category_option == 3:
-                    filter_by_category(expenses, categories)
+                    elif category_option == 3:
+                        filter_by_category(expenses, categories)
         
-                elif category_option == 0:
-                    break
-                try:
-                    category_option = int(input("Select an option:"))
-                except ValueError:
-                    print("Please enter a valid number.")
-                    continue
-        elif option == 3:
-            while True:
-                print("1. Set Budget")
-                print("2. Adjust Budget")
-                print("3. Check Budget")
-                print("4. Import From CSV")
-                print("5. Export To CSV")
-                print("0. Exit")
-                if option == 1:
-                    set_budget(expenses, budgets)
-                elif option == 2:
-                    adjust_budget(budgets)
-                elif option == 3:
-                    check_budget(expenses, budgets)
-                elif option == 0:
-                    break
-                try:
-                    option = int(input("Select an option:"))
-                except ValueError:
-                    print("Please enter a valid number.")
-                    continue
-        elif option == 0:
-            break
-        else:
-            print("Invalid option.")
+                    elif category_option == 0:
+                        break
+            elif option == 3:
+                while True:
+                    try:
+                        budget_option = int(input("Select an option:"))
+                    except ValueError:
+                        print("Please enter a valid number.")
+                        continue
+                    print("1. Set Budget")
+                    print("2. Adjust Budget")
+                    print("3. Check Budget")
+                    print("4. Import From CSV")
+                    print("5. Export To CSV")
+                    print("0. Exit")    
+                    if budget_option == 1:
+                        set_budget(expenses, budgets)
+                    elif budget_option == 2:
+                        adjust_budget(budgets)
+                    elif budget_option == 3:
+                        check_budget(expenses, budgets)
+                    elif budget_option == 0:
+                        break
+        
+            elif option == 0:
+                break
+            else:
+                print("Invalid option.")
 
-        try:
-            option = int(input("Select an option:"))
-        except ValueError:
-            print("Please enter a valid number.")
-            continue
+            try:
+                option = int(input("Select an option:"))
+            except ValueError:
+                print("Please enter a valid number.")
+                continue
+    finally:
+        save_data(expenses, categories, budgets)
 
 def add_expense(expenses):
     valid_months = [
@@ -126,7 +154,7 @@ def add_expense(expenses):
         "december",
     ]
     
-    month = input("Enter month for expense:")
+    month = input("Enter month for expense: ")
     if (month.lower() not in valid_months):
         print("Invalid month")
         return
@@ -142,7 +170,7 @@ def add_expense(expenses):
     print(f"Added {name}: ${amount:.2f} in {month}")
 
 def update_expense(expenses):
-    month = input("Enter month")
+    month = input("Enter month").strip().lower()
     if month not in expenses:
         print(f"No expenses recorded for {month}")
         return
@@ -160,7 +188,7 @@ def update_expense(expenses):
     print(f"Expense {name} updated to {new_amount}")
 
 def delete_expense(expenses):
-    month = input("Enter month")
+    month = input("Enter month").strip().lower()
     if month not in expenses:
         print(f"No expenses recorded for {month}")
         return
@@ -196,7 +224,7 @@ def view_expense_summary_for_month(expenses):
     if not expenses:
         print("No expenses recorded yet.")
         return
-    month = input("Enter month")
+    month = input("Enter month").strip().lower()
     if month not in expenses:
         print(f"No expenses recorded for {month}")
         return
@@ -211,6 +239,16 @@ def import_expenses_to_csv(expenses, filename="expenses.csv"):
             reader = csv.DictReader(file)
             for row in reader:
                 month = row["Month"].lower()
+                name = row["Expense"]
+                try:
+                    amount = float(row["Amount"])
+                except ValueError:
+                    print(f"Skipping invalid expense {row}")
+                    continue
+
+                if month not in expenses:
+                    expenses[month] = {}
+                expenses[month][name] = amount
 
         print(f"Expenses imported from {filename}")
     except FileNotFoundError:
@@ -283,29 +321,24 @@ def import_categories_to_csv(categories, filename="categories.csv"):
         with open(filename, mode="r") as file:
             reader = csv.DictReader(file)
             for row in reader:
-                month = row["Month"].lower()
-                try:
-                    amount = float(row["Budget"])
-                except ValueError:
-                    print(f"Skipping invalid budget for {month}")
-                    continue
-                categories[month] = amount
+                category = row["Category"].lower()
+                if category not in categories:
+                    categories[category] = []
         print(f"Categories imported from {filename}")
     except FileNotFoundError:
         print(f"Error: File {filename} not found")
 
-def export_categories_to_csv(categories, filename="expenses.csv"):
+def export_categories_to_csv(categories, filename="categories.csv"):
     if not categories:
         print("No expenses to export")
         return
     
     with open(filename, mode="w", newline="") as file:
         writer = csv.writer(file)
-        writer.writerow(["Month", "Expense", "Amount"])
+        writer.writerow(["Category"])
     
-        for category, expenses in categories.items():
-            for name, amount in categories.values():
-                writer.writerow([category, name, amount])
+        for category in categories:
+                writer.writerow([category])
     print(f"Categories exported to {filename}")
 
 def set_budget(expenses, budgets):
@@ -322,7 +355,7 @@ def set_budget(expenses, budgets):
     print(f"Budget of ${budget:.2f} set for {month}")
 
 def adjust_budget(budgets):
-    month = input("Enter month")
+    month = input("Enter month").strip().lower()
     if month not in budgets:
         print(f"No budgets recorded for {month}")
         return
@@ -330,6 +363,9 @@ def adjust_budget(budgets):
         new_budget = float(input("Enter new budget: "))
     except ValueError:
         print("Invalid budget amount")
+        return
+    
+    budgets[month] = new_budget
     print(f"Budget for {month} changed to {new_budget:.2f}")
 
 def check_budget(expenses, budgets):
@@ -344,12 +380,12 @@ def check_budget(expenses, budgets):
     budget = budgets[month]
 
     if total_expenses > budget:
-        print("Warning: Total expenses for {month} have exceeded the budget: Deficit: ${budget - total_expenses:.2f }")
+        print(f"Warning: Total expenses for {month} have exceeded the budget: Deficit: ${total_expenses - budget:.2f }")
     
     else:
-        print("Total expenses for {month} have not exceeded the budget: Remaining: ${budget - total_expenses:.2f }")
+        print(f"Total expenses for {month} have not exceeded the budget: Remaining: ${budget - total_expenses:.2f }")
 
-def import_budgets_to_csv(budgets, filename="categories.csv"):
+def import_budgets_to_csv(budgets, filename="budgets.csv"):
     try:
         with open(filename, mode="r") as file:
             reader = csv.DictReader(file)
@@ -365,7 +401,7 @@ def import_budgets_to_csv(budgets, filename="categories.csv"):
     except FileNotFoundError:
         print(f"Error: File {filename} not found")
 
-def export_budgets_to_csv(budgets, filename="expenses.csv"):
+def export_budgets_to_csv(budgets, filename="budgets.csv"):
     if not budgets:
         print("No expenses to export")
         return
