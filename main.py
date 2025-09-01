@@ -381,8 +381,6 @@ def clear_budgets(budgets):
     else:
         print("Clear cancelled.❌")
 
-
-
 def clear_all_data(expenses, categories, budgets):
     confirm = input("Are you sure you want to clear all data? (yes/no)").lower()
 
