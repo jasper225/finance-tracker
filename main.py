@@ -21,19 +21,16 @@ def load_data(filename=DATA_FILE):
         data = json.load(f)
     return data.get("expenses", {}), data.get("categories", {}), data.get("budgets", {})
 
-
-
 def main():
     expenses, categories, budgets = load_data()
-    expenses = {}
-    categories = {}
-    budgets = {}
     try:
         while True:
-            print("--Expense Tracker--")
+            print("🏦--Expense Tracker--🏦")
             print("1. Manage Expenses")
             print("2. Manage Categories")
             print("3. Manage Budgets")
+            print("4. Clear Data")
+            print("5. Import/Export Data")
             print("0. Exit")
             try:
                 option = int(input("Select a feature to manage:"))
@@ -48,8 +45,6 @@ def main():
                     print("4. View Expenses")
                     print("5. View Summary Of Expenses")
                     print("6. View Summary Of Expenses For Specific Month")
-                    print("7. Import From CSV")
-                    print("8. Export To CSV")
                     print("0. Exit")
                     try:
                         expense_option = int(input("Select an option:"))
@@ -73,8 +68,6 @@ def main():
         
                     elif expense_option == 6:
                         view_expense_summary_for_month(expenses)
-                    elif expense_option == 8:
-                        export_expenses_to_csv(expenses)
                     elif expense_option == 0:
                         break
                     else:
@@ -84,8 +77,6 @@ def main():
                     print("1. Create Category")
                     print("2. Add To Category")
                     print("3. Filter By Category")
-                    print("4. Import From CSV")
-                    print("5. Export To CSV")
                     print("0. Exit")
                     try:
                         category_option = int(input("Select an option:"))
@@ -113,8 +104,6 @@ def main():
                     print("1. Set Budget")
                     print("2. Adjust Budget")
                     print("3. Check Budget")
-                    print("4. Import From CSV")
-                    print("5. Export To CSV")
                     print("0. Exit")    
                     if budget_option == 1:
                         set_budget(expenses, budgets)
@@ -123,6 +112,42 @@ def main():
                     elif budget_option == 3:
                         check_budget(expenses, budgets)
                     elif budget_option == 0:
+                        break
+            elif option == 4:
+                while True:
+                    try:
+                        clear_option = int(input("Select an option:"))
+                    except ValueError:
+                        print("Please enter a valid number.")
+                        continue
+                    print("1. Clear Expenses")
+                    print("2. Clear Categories")
+                    print("3. Clear Budgets")
+                    print("4. Clear All Data")
+                    if clear_option == 1:
+                        clear_expenses(expenses)
+                    elif clear_option == 2:
+                        clear_categories(categories)
+                    elif clear_option == 3:
+                        clear_budgets(budgets)
+                    elif clear_option == 4:
+                        clear_all_data(expenses, categories, budgets)
+            
+            elif option == 5:
+                while True:
+                    try:
+                        data_option = int(input("Select an option: "))
+                    except ValueError:
+                        print("Please enter a valid number.")
+                        continue
+                    print("1. Import Data")
+                    print("2. Export Data")
+                    print("0. Exit")
+                    if data_option == 1:
+                        import_from_csv(expenses, categories, budgets)
+                    elif data_option == 2:
+                        export_to_csv(expenses, categories, budgets)
+                    elif data_option == 0:
                         break
         
             elif option == 0:
@@ -137,6 +162,7 @@ def main():
                 continue
     finally:
         save_data(expenses, categories, budgets)
+
 
 def add_expense(expenses):
     valid_months = [
@@ -233,41 +259,6 @@ def view_expense_summary_for_month(expenses):
 
     print(f"Total for {month}: {total:.2f}")
 
-def import_expenses_to_csv(expenses, filename="expenses.csv"):
-    try:
-        with open(filename, mode="r") as file:
-            reader = csv.DictReader(file)
-            for row in reader:
-                month = row["Month"].lower()
-                name = row["Expense"]
-                try:
-                    amount = float(row["Amount"])
-                except ValueError:
-                    print(f"Skipping invalid expense {row}")
-                    continue
-
-                if month not in expenses:
-                    expenses[month] = {}
-                expenses[month][name] = amount
-
-        print(f"Expenses imported from {filename}")
-    except FileNotFoundError:
-        print(f"Error: File {filename} not found")
-
-def export_expenses_to_csv(expenses, filename="expenses.csv"):
-    if not expenses:
-        print("No expenses to export")
-        return
-    
-    with open(filename, mode="w", newline="") as file:
-        writer = csv.writer(file)
-        writer.writerow(["Month", "Expense", "Amount"])
-    
-        for month, month_expenses in expenses.items():
-            for name, amount in month_expenses.items():
-                writer.writerow([month.capitalize(), name, amount])
-    print(f"Expenses exported to {filename}")
-
 def create_category(categories):
     category = input("Enter category name:")
     if category in categories:
@@ -316,31 +307,6 @@ def filter_by_category(expenses, categories):
             if name in expense:
                 print(f"{month.capitalize()}: - {name}: ${amount:.2f}")
 
-def import_categories_to_csv(categories, filename="categories.csv"):
-    try:
-        with open(filename, mode="r") as file:
-            reader = csv.DictReader(file)
-            for row in reader:
-                category = row["Category"].lower()
-                if category not in categories:
-                    categories[category] = []
-        print(f"Categories imported from {filename}")
-    except FileNotFoundError:
-        print(f"Error: File {filename} not found")
-
-def export_categories_to_csv(categories, filename="categories.csv"):
-    if not categories:
-        print("No expenses to export")
-        return
-    
-    with open(filename, mode="w", newline="") as file:
-        writer = csv.writer(file)
-        writer.writerow(["Category"])
-    
-        for category in categories:
-                writer.writerow([category])
-    print(f"Categories exported to {filename}")
-
 def set_budget(expenses, budgets):
     month = input("Enter month: ").lower()
     if month not in expenses:
@@ -385,35 +351,99 @@ def check_budget(expenses, budgets):
     else:
         print(f"Total expenses for {month} have not exceeded the budget: Remaining: ${budget - total_expenses:.2f }")
 
-def import_budgets_to_csv(budgets, filename="budgets.csv"):
+def clear_expenses(expenses):
+    confirm = input("Are you sure you want to clear data for expenses? (yes/no)").lower()
+
+    if confirm == "yes":
+        expenses.clear()
+        save_data(expenses)
+        print("Expense data cleared.✅")
+    else:
+        print("Clear cancelled.❌")
+
+def clear_categories(categories):
+    confirm = input("Are you sure you want to clear data for categories? (yes/no)").lower()
+
+    if confirm == "yes":
+        categories.clear()
+        save_data(categories)
+        print("Category data cleared.✅")
+    else:
+        print("Clear cancelled.❌")
+
+def clear_budgets(budgets):
+    confirm = input("Are you sure you want to clear data for budgets? (yes/no)").lower()
+
+    if confirm == "yes":
+        budgets.clear()
+        save_data(budgets)
+        print("Budget data cleared.✅")
+    else:
+        print("Clear cancelled.❌")
+
+
+
+def clear_all_data(expenses, categories, budgets):
+    confirm = input("Are you sure you want to clear all data? (yes/no)").lower()
+
+    if confirm == "yes":
+        expenses.clear()
+        categories.clear()
+        budgets.clear()
+        save_data(expenses, categories, budgets)
+        print("All data cleared.✅")
+    else:
+        print("Clear cancelled.❌")
+
+def import_from_csv(expenses, categories, budgets):
     try:
-        with open(filename, mode="r") as file:
-            reader = csv.DictReader(file)
+        with open("expenses.csv", "r") as f:
+            reader = csv.DictReader(f)
             for row in reader:
                 month = row["Month"].lower()
-                try:
-                    amount = float(row["Budget"])
-                except ValueError:
-                    print(f"Skipping invalid budget for {month}")
-                    continue
-                budgets[month] = amount
-        print(f"Budgets imported from {filename}")
+                if month not in expenses:
+                    expenses[month] = {}
+                expenses[month][row["Expense"]] = float(row["Amount"])
+        print("Expenses imported from expenses.csv")
     except FileNotFoundError:
-        print(f"Error: File {filename} not found")
+        print("Error: No expenses.csv found")
+    try:
+        with open("categories.csv", "r") as f:
+            reader = csv.DictReader(f)
+            for row in reader:
+                categories[row["Category"]] = row["Expenses"].split(";") if row["Expenses"] else []
+        print("Categories imported from categories.csv")
+    except FileNotFoundError:
+        print("Error: No categories.csv found")
+    try:
+        with open("budgets.csv", "r") as f:
+            reader = csv.DictReader(f)
+            for row in reader:
+                budgets[row["Month"].lower()] = float(row["Limit"])
+        print("Budgets imported from budgets.csv")
+    except FileNotFoundError:
+        print("Error: No budgets.csv found")
 
-def export_budgets_to_csv(budgets, filename="budgets.csv"):
-    if not budgets:
-        print("No expenses to export")
-        return
-    
-    with open(filename, mode="w", newline="") as file:
-        writer = csv.writer(file)
-        writer.writerow(["Month", "Budget"])
-        
-        for month, amount in budgets.items():
-            writer.writerow([month.capitalize(), amount])
-    print(f"Budgets exported to {filename}")
-    
+def export_to_csv(expenses, categories, budgets):
+    with open("expenses.csv", "w", newline="") as f:
+        writer = csv.writer(f)
+        writer.writerow(["Month", "Expense", "Amount"])
+        for month, month_expenses in expenses.items():
+            for expense, amount in month_expenses.items():
+                writer.writerow([month, expense, amount])
+    print("Expenses exported to expenses.csv")
+    with open("categories.csv", "w", newline="") as f:
+        writer = csv.writer(f)
+        writer.writerow(["Categories", "Expenses"])
+        for category, exp_list in categories.items():
+            writer.writerow([category, ",".join(exp_list)])
+    print("Categories exported to categories.csv")
+    with open("budgets.csv", "w", newline="") as f:
+        writer = csv.writer(f)
+        writer.writerow(["ID", "Month", "Limit"])
+        for month, limit in budgets.items():
+            writer.writerow([month, limit])
+    print("Expenses exported to expenses.csv")
 
 if __name__ == "__main__":
     main()
