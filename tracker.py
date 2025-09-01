@@ -48,23 +48,34 @@ def delete_category(categories, category):
     if category in categories:
         del categories[category]
 
+def filter_by_category(categories, category):
+    if category not in categories:
+        return {}
+    
+    category_items = set(categories[category])
+
+    return category_items
+   
 def set_budget(budgets, month, limit):
     budgets[month.lower()] = limit
+
+def adjust_budget(budgets, month, new_budget):
+    budgets[month.lower()] = new_budget
 
 def get_budget(budgets, month):
     return budgets.get(month.lower(), None)
 
-def clear_expenses(expenses):
+def clear_expenses(expenses, categories, budgets):
     expenses.clear()
-    save_data(expenses)
+    save_data(expenses, categories, budgets)
 
-def clear_categories(categories):
+def clear_categories(expenses, categories, budgets):
     categories.clear()
-    save_data(categories)
+    save_data(expenses, categories, budgets)
 
-def clear_budgets(budgets):
+def clear_budgets(expenses, categories, budgets):
     budgets.clear()
-    save_data(budgets)
+    save_data(expenses, categories, budgets)
 
 def clear_all_data(expenses, categories, budgets):
     expenses.clear()
@@ -110,12 +121,12 @@ def export_to_csv(expenses, categories, budgets):
                 writer.writerow([month, expense, amount])
     with open("categories.csv", "w", newline="") as f:
         writer = csv.writer(f)
-        writer.writerow(["Categories", "Expenses"])
+        writer.writerow(["Category", "Expenses"])
         for category, exp_list in categories.items():
             writer.writerow([category, ",".join(exp_list)])
     with open("budgets.csv", "w", newline="") as f:
         writer = csv.writer(f)
-        writer.writerow(["ID", "Month", "Limit"])
+        writer.writerow(["Month", "Limit"])
         for month, limit in budgets.items():
             writer.writerow([month, limit])
 
