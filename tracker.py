@@ -12,7 +12,6 @@ def save_data(expenses, categories, budgets, filename=DATA_FILE):
     }
     with open(filename, "w") as f:
         json.dump(data, f, indent=4)
-    print("Data saved successfully.")
 
 def load_data(filename=DATA_FILE):
     if not os.path.exists(filename):
@@ -92,7 +91,6 @@ def import_from_csv(expenses, categories, budgets):
                 if month not in expenses:
                     expenses[month] = {}
                 expenses[month][row["Expense"]] = float(row["Amount"])
-        print("Expenses imported from expenses.csv")
     except FileNotFoundError:
         pass
     try:
@@ -100,7 +98,6 @@ def import_from_csv(expenses, categories, budgets):
             reader = csv.DictReader(f)
             for row in reader:
                 categories[row["Category"]] = row["Expenses"].split(";") if row["Expenses"] else []
-        print("Categories imported from categories.csv")
     except FileNotFoundError:
         pass
     try:
@@ -108,7 +105,6 @@ def import_from_csv(expenses, categories, budgets):
             reader = csv.DictReader(f)
             for row in reader:
                 budgets[row["Month"].lower()] = float(row["Limit"])
-        print("Budgets imported from budgets.csv")
     except FileNotFoundError:
         pass
 
