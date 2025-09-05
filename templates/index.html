@@ -5,8 +5,182 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Expense Tracker</title>
     <link rel="stylesheet" href="{{url_for('static', filename="styles.css") }}" />
+    <script src="index.js"></script>
 </head>
 <body>
-    <h1>Expense Tracker</h1>
+    <div class="container">
+        <h1>💰 Expense Tracker</h1>
+        
+        <!-- Summary Dashboard -->
+        <div class="dashboard">
+            <div class="card summary-card">
+                <h2>Monthly Summary</h2>
+                <div class="summary-amount" id="monthlyTotal">$0.00</div>
+                <div class="budget-status">
+                    <div class="budget-item">
+                        <div class="budget-label">Budget</div>
+                        <div class="budget-value" id="monthlyBudget">$0.00</div>
+                    </div>
+                    <div class="budget-item">
+                        <div class="budget-label">Remaining</div>
+                        <div class="budget-value" id="monthlyRemaining">$0.00</div>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Month Selector -->
+        <div class="month-selector">
+            <button class="month-btn active" onclick="selectMonth('january')">Jan</button>
+            <button class="month-btn" onclick="selectMonth('february')">Feb</button>
+            <button class="month-btn" onclick="selectMonth('march')">Mar</button>
+            <button class="month-btn" onclick="selectMonth('april')">Apr</button>
+            <button class="month-btn" onclick="selectMonth('may')">May</button>
+            <button class="month-btn" onclick="selectMonth('june')">Jun</button>
+            <button class="month-btn" onclick="selectMonth('july')">Jul</button>
+            <button class="month-btn" onclick="selectMonth('august')">Aug</button>
+            <button class="month-btn" onclick="selectMonth('september')">Sep</button>
+            <button class="month-btn" onclick="selectMonth('october')">Oct</button>
+            <button class="month-btn" onclick="selectMonth('november')">Nov</button>
+            <button class="month-btn" onclick="selectMonth('december')">Dec</button>
+        </div>
+
+        <!-- Tabs -->
+        <div class="tabs">
+            <button class="tab active" onclick="switchTab('expenses')">Expenses</button>
+            <button class="tab" onclick="switchTab('categories')">Categories</button>
+            <button class="tab" onclick="switchTab('budgets')">Budgets</button>
+            <button class="tab" onclick="switchTab('data')">Data Management</button>
+        </div>
+
+        <!-- Expenses Tab -->
+        <div id="expenses-tab" class="tab-content active">
+            <div class="dashboard">
+                <div class="card">
+                    <h2>Add New Expense</h2>
+                    <form action="/add_expense" method="POST">
+                        <div class="form-group">
+                            <label for="expense-month">Month:</label>
+                            <select id="expense-month" name="month" required>
+                                <option value="january">January</option>
+                                <option value="february">February</option>
+                                <option value="march">March</option>
+                                <option value="april">April</option>
+                                <option value="may">May</option>
+                                <option value="june">June</option>
+                                <option value="july">July</option>
+                                <option value="august">August</option>
+                                <option value="september">September</option>
+                                <option value="october">October</option>
+                                <option value="november">November</option>
+                                <option value="december">December</option>
+                            </select>
+                        </div>
+                        <div class="form-group">
+                            <label for="expense-name">Expense Name:</label>
+                            <input type="text" id="expense-name" name="name" required>
+                        </div>
+                        <div class="form-group">
+                            <label for="expense-amount">Amount:</label>
+                            <input type="number" id="expense-amount" name="amount" step="0.01" required>
+                        </div>
+                        <button type="submit" class="btn">Add Expense</button>
+                    </form>
+                </div>
+
+                <div class="card">
+                    <h2>Expenses for <span id="currentMonth">January</span></h2>
+                    <div id="expensesList" class="expense-list">
+                        <div class="loading">Loading expenses...</div>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Categories Tab -->
+        <div id="categories-tab" class="tab-content">
+            <div class="dashboard">
+                <div class="card">
+                    <h2>Add New Category</h2>
+                    <form action="/add_category" method="POST">
+                        <div class="form-group">
+                            <label for="category-name">Category Name:</label>
+                            <input type="text" id="category-name" name="category" required>
+                        </div>
+                        <button type="submit" class="btn">Add Category</button>
+                    </form>
+                </div>
+
+                <div class="card">
+                    <h2>Manage Categories</h2>
+                    <div id="categoriesList">
+                        <div class="loading">Loading categories...</div>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Budgets Tab -->
+        <div id="budgets-tab" class="tab-content">
+            <div class="dashboard">
+                <div class="card">
+                    <h2>Set Budget</h2>
+                    <form action="/set_budget" method="POST">
+                        <div class="form-group">
+                            <label for="budget-month">Month:</label>
+                            <select id="budget-month" name="month" required>
+                                <option value="january">January</option>
+                                <option value="february">February</option>
+                                <option value="march">March</option>
+                                <option value="april">April</option>
+                                <option value="may">May</option>
+                                <option value="june">June</option>
+                                <option value="july">July</option>
+                                <option value="august">August</option>
+                                <option value="september">September</option>
+                                <option value="october">October</option>
+                                <option value="november">November</option>
+                                <option value="december">December</option>
+                            </select>
+                        </div>
+                        <div class="form-group">
+                            <label for="budget-amount">Budget Amount:</label>
+                            <input type="number" id="budget-amount" name="amount" step="0.01" required>
+                        </div>
+                        <button type="submit" class="btn">Set Budget</button>
+                    </form>
+                </div>
+
+                <div class="card">
+                    <h2>Budget Status</h2>
+                    <div id="budgetStatus">
+                        <div class="loading">Loading budget status...</div>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Data Management Tab -->
+        <div id="data-tab" class="tab-content">
+            <div class="dashboard">
+                <div class="card">
+                    <h2>Export Data</h2>
+                    <p>Export your data to CSV files for backup or analysis.</p>
+                    <button onclick="exportData()" class="btn">Export to CSV</button>
+                </div>
+
+                <div class="card">
+                    <h2>Clear Data</h2>
+                    <p>⚠️ Warning: These actions cannot be undone!</p>
+                    <div style="display: flex; gap: 10px; flex-wrap: wrap; margin-top: 15px;">
+                        <button onclick="clearData('expenses')" class="btn btn-danger btn-small">Clear Expenses</button>
+                        <button onclick="clearData('categories')" class="btn btn-danger btn-small">Clear Categories</button>
+                        <button onclick="clearData('budgets')" class="btn btn-danger btn-small">Clear Budgets</button>
+                        <button onclick="clearData('all')" class="btn btn-danger">Clear All Data</button>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
 </body>
 </html>
