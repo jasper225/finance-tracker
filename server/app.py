@@ -77,6 +77,10 @@ def category_expenses(category):
     
     return jsonify(category_expenses)
 
+@app.route("/list_categories")
+def list_categories():
+    return jsonify(categories or {})
+
 @app.route("/set_budget", methods=["POST"])
 def set_budget():
     month = request.form["month"]
@@ -86,7 +90,7 @@ def set_budget():
     
     return redirect(url_for("index"))
 
-@app.route("/adjust_budget/<month>/<budget>", methods=["POST"]) 
+@app.route("/adjust_budget/<month>", methods=["POST"]) 
 def adjust_budget(month):
     new_budget = float(request.form["budget"])
     tracker.adjust_budget(budgets, month, new_budget)
@@ -94,19 +98,20 @@ def adjust_budget(month):
 
     return redirect(url_for("index"))
 
-@app.route("/get_budget/<month>/<budget>")
-def get_budget(month, budget):
-    tracker.get_budget(budgets, month, budget)
-    tracker.save_data(expenses, categories, budgets)
-
+@app.route("/get_budget/<month>")
+def get_budget(month):
+    budget = tracker.get_budget(budgets, month)
     return jsonify({"month": month, "budget": budget})
 
 @app.route("/check_budget/<month>")
 def check_budget(month):
-    budget_status = tracker.check_budget(budgets, month)
+    budget_status = tracker.check_budget(expenses, budgets, month)
 
     return jsonify(budget_status)
 
+@app.route("/list_budgets")
+def list_budgets():
+    return jsonify(budgets or {})
 
 @app.route("/clear_expenses")
 def clear_expenses():
