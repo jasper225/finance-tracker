@@ -3,7 +3,6 @@ import os
 import csv
 
 DATA_FILE = "data.json"
-
 def save_data(expenses, categories, budgets, filename=DATA_FILE):
     data = {
         "expenses": expenses,
@@ -19,7 +18,7 @@ def load_data(filename=DATA_FILE):
     with open(filename, "r") as f:
         data = json.load(f)
     return data.get("expenses", {}), data.get("categories", {}), data.get("budgets", {})
-
+# Expenses
 def add_expense(expenses, month, expense, amount):
     month = month.lower()
     if month not in expenses:
@@ -43,7 +42,7 @@ def list_expenses(expenses, month=None):
 def monthly_summary(expenses, month):
     month_expenses = expenses.get(month.lower(), {})
     return sum(month_expenses.values())
-
+# Categories
 def add_category(categories, category):
     categories[category] = []
 
@@ -81,7 +80,7 @@ def category_expenses(expenses, categories, category):
                 category_expenses[month][expense_name] = amount
     
     return category_expenses
-   
+# Budgets   
 def set_budget(budgets, month, limit):
     budgets[month.lower()] = limit
 

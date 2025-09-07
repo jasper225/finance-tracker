@@ -5,6 +5,8 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Expense Tracker</title>
     <link rel="stylesheet" href="{{url_for('static', filename="styles.css") }}" />
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/Chart.js/4.4.0/chart.min.js"></script>
+    <script src="{{ url_for('static', filename='analytics.js') }}"></script>
     <script src="index.js"></script>
 </head>
 <body>
@@ -50,6 +52,7 @@
             <button class="tab active" onclick="switchTab('expenses')">Expenses</button>
             <button class="tab" onclick="switchTab('categories')">Categories</button>
             <button class="tab" onclick="switchTab('budgets')">Budgets</button>
+            <button class="tab" onclick="switchTab('analytics')">Analytics</button>
             <button class="tab" onclick="switchTab('data')">Data Management</button>
         </div>
 
@@ -160,12 +163,78 @@
             </div>
         </div>
 
+        <div id="analytics-tab" class="tab-content">
+        <!-- Key Insights Cards -->
+            <div class="dashboard">
+                <div class="card">
+                    <h3>📊 Key Insights</h3>
+                    <div class="insights-grid">
+                        <div class="insight-item">
+                            <div class="insight-label">Total Spending</div>
+                            <div class="insight-value" id="totalSpending">$0.00</div>
+                        </div>
+                        <div class="insight-item">
+                            <div class="insight-label">Average Monthly</div>
+                            <div class="insight-value" id="avgMonthlySpending">$0.00</div>
+                        </div>
+                        <div class="insight-item">
+                            <div class="insight-label">Highest Month</div>
+                            <div class="insight-value" id="highestMonth">-</div>
+                        </div>
+                        <div class="insight-item">
+                            <div class="insight-label">Top Category</div>
+                            <div class="insight-value" id="topCategory">-</div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+    <!-- Charts Section -->
+        <div class="charts-container">
+            <!-- Monthly Trends Chart -->
+            <div class="card chart-card">
+                <div class="chart-container">
+                    <canvas id="monthlyTrendChart"></canvas>
+                </div>
+            </div>
+
+            <!-- Category and Budget Charts -->
+            <div class="dashboard">
+                <div class="card chart-card">
+                    <div class="chart-container">
+                        <canvas id="categoryPieChart"></canvas>
+                    </div>
+                </div>
+                
+                <div class="card chart-card">
+                    <div class="chart-container">
+                        <canvas id="budgetComparisonChart"></canvas>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Analytics Actions -->
+        <div class="card">
+            <h3>📈 Analytics Actions</h3>
+            <div style="display: flex; gap: 15px; flex-wrap: wrap;">
+                <button onclick="refreshAnalytics()" class="btn btn-secondary">
+                    🔄 Refresh Charts
+                </button>
+                <button onclick="exportAnalyticsData()" class="btn">
+                    📊 Export Analytics Data
+                </button>
+            </div>
+        </div>
+    </div>
+
         <!-- Data Management Tab -->
         <div id="data-tab" class="tab-content">
             <div class="dashboard">
                 <div class="card">
-                    <h2>Export Data</h2>
-                    <p>Export your data to CSV files for backup or analysis.</p>
+                    <h2>Import/Export Data</h2>
+                    <p>Import or export your data to CSV files for backup or analysis.</p>
+                    <button onclick="importData()" class="btn">Import from CSV</button>
                     <button onclick="exportData()" class="btn">Export to CSV</button>
                 </div>
 

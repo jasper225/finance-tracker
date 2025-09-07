@@ -1,4 +1,4 @@
- let currentMonth = 'january';
+        let currentMonth = 'january';
         let expenses = {};
         let categories = {};
         let budgets = {};
@@ -8,6 +8,10 @@
             loadInitialData();
             updateMonthlySummary();
             loadExpenses();
+
+            if (Object.keys(expenses).length > 0) {
+                console.log("Analytics ready to analyze.");
+            }
         });
 
         // Load initial data (you'll need to pass this from your Flask template)
@@ -41,7 +45,12 @@
                 loadCategories();
             } else if (tabName === 'budgets') {
                 loadBudgetStatus();
-            }
+            } else if (tabName === 'analytics') {
+                setTimeout(() => {
+                initializeCharts(),
+                updateInsightsDisplay()
+                }, 100);
+            } 
         }
 
         // Month selection
@@ -103,9 +112,34 @@
         // Load categories
         async function loadCategories() {
             try {
-            const categoriesList = document.getElementById('categoriesList');
+                const response = await fetch(`/list_categories`);
+                const categoryData = await response.json();
+            
+                const categoriesList = document.getElementById('categoriesList');
 
-            categoriesList.innerHTML = '<div class="loading">Loading categories...</div>';
+                if (Object.keys(categoryData).length === 0) {
+                    categoriesList.innerHTML = '<div class="loading">No categories created yet.</div>';
+                    return;
+                }
+                
+
+                categoriesList.innerHTML = '';
+
+                for (const [categoryName, expenseList] of Object.entries(categoryData)) {
+                    const categoryItem = document.createElement('div');
+                    categoryItem.className = 'category-item';
+                    categoryItem.innerHTML = `
+                        <div class="category-details">
+                            <div class="category-name">${categoryName}</div>
+                            <div class="expense-list">$${expenseList.length} expenses</div>
+                        </div>
+                        <div class="expense-actions">
+                            <button onclick="viewCategory('${categoryName}')" class="btn btn-secondary btn-small">View</button>
+                            <button onclick="deleteCategory('${categoryName}')" class="btn btn-danger btn-small">Delete</button>
+                        </div>
+                    `;
+                    expenseList.appendChild(categoryItem);
+                }
             }
             catch (error) {
                 console.error('Error loading categories:', error);
@@ -213,6 +247,19 @@
         function deleteExpense(name) {
             if (confirm(`Are you sure you want to delete "${name}"?`)) {
                 window.location.href = `/delete_expense/${currentMonth}/${encodeURIComponent(name)}`;
+            }
+        }
+
+        
+        // Import data
+        async function importData() {
+            try {
+                const response = await fetch('/import_from_csv');
+                const result = await response.json();
+                alert(result.message);
+            } catch (error) {
+                console.error('Error importing data:', error);
+                alert('Error importing data. Please try again.');
             }
         }
 

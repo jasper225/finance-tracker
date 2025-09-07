@@ -1,4 +1,5 @@
 import tracker
+import analytics
 from flask import Flask, render_template, request, redirect, url_for, jsonify
 from flask_scss import Scss
 
@@ -10,6 +11,71 @@ expenses, categories, budgets = tracker.load_data()
 @app.route("/")
 def index():
     return render_template("index.html", expenses=expenses, categories=categories, budgets=budgets)
+
+@app.route("/sync_analytics")
+def sync_analytics():
+    try:
+        analytics.sync_data_to_analytics(expenses, categories)
+    except Exception as e:
+        return jsonify({{"error": str(e)}}), 500
+
+@app.route("/analytics/monthly_trends")
+def get_monthly_trends():
+    try:
+        analytics.sync_data_to_analytics(expenses, categories)
+        trends = analytics.get_monthly_trends()
+        return jsonify(trends)
+    except Exception as e:
+        return jsonify({{"error": str(e)}}), 500
+
+@app.route("/analytics/category_breakdown")
+def get_category_breakdown():
+    try:
+        analytics.sync_data_to_analytics(expenses, categories)
+        category_breakdown = analytics.get_category_breakdown()
+        return jsonify(category_breakdown)
+    except Exception as e:
+        return jsonify({{"error": str(e)}}), 500
+
+@app.route("/analytics/insights")
+def get_insights():
+    try:
+        analytics.sync_data_to_analytics(expenses, categories)
+        insights = analytics.get_spending_insights()
+        return jsonify(insights)
+    except Exception as e:
+        return jsonify({{"error": str(e)}}), 500
+
+@app.route("/analytics/category_trends")
+def get_category_trends():
+    try:
+        analytics.sync_data_to_analytics(expenses, categories)
+        category_trends = analytics.get_expense_trends_by_category()
+        return jsonify(category_trends)
+    except Exception as e:
+        return jsonify({{"error": str(e)}}), 500
+
+@app.route("/analytics/search_expenses")
+def search_expenses():
+    try:
+        analytics.sync_data_to_analytics(expenses, categories)
+        query = request.args.get('query')
+        category = request.args.get('category')
+        month = request.args.get('month')
+        min_amount = request.args.get('min_amount')
+        max_amount = request.args.get('max_amount')
+        results = analytics.search_expenses(query, category, month, min_amount, max_amount)
+        return jsonify(results)
+    except Exception as e:
+        return jsonify({{"error": str(e)}}), 500
+
+@app.route("/analytics/get_analytics_summary")
+def get_analytics_summary():
+    try:
+        analytics.sync_data_to_analytics(expenses, categories)
+        summary = analytics.get_analytics_summary()
+    except Exception as e:
+        return jsonify({{"error": str(e)}}), 500
 
 @app.route("/add_expense", methods=["POST"])
 def add_expense():
