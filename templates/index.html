@@ -4,13 +4,22 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Expense Tracker</title>
-    <link rel="stylesheet" href="{{url_for('static', filename="styles.css") }}" />
-    <script src="https://cdnjs.cloudflare.com/ajax/libs/Chart.js/4.4.0/chart.min.js"></script>
-    <script src="{{ url_for('static', filename='analytics.js') }}"></script>
+    <link rel="stylesheet" href="{{url_for('static', filename='styles.css') }}"/>
     <script src="index.js"></script>
+    <script src="analytics.js"></script>
+    <script src="helper.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/Chart.js/4.4.0/chart.min.js"></script>
 </head>
 <body>
     <div class="container">
+        <!-- Global Loading Indicator -->
+        <div id="globalLoader" class="global-loader" style="display: none;">
+            <div class="loader-content">
+                <div class="spinner"></div>
+                <p>Loading...</p>
+            </div>
+        </div>
+
         <h1>💰 Expense Tracker</h1>
         
         <!-- Summary Dashboard -->
@@ -33,27 +42,27 @@
 
         <!-- Month Selector -->
         <div class="month-selector">
-            <button class="month-btn active" onclick="selectMonth('january')">Jan</button>
-            <button class="month-btn" onclick="selectMonth('february')">Feb</button>
-            <button class="month-btn" onclick="selectMonth('march')">Mar</button>
-            <button class="month-btn" onclick="selectMonth('april')">Apr</button>
-            <button class="month-btn" onclick="selectMonth('may')">May</button>
-            <button class="month-btn" onclick="selectMonth('june')">Jun</button>
-            <button class="month-btn" onclick="selectMonth('july')">Jul</button>
-            <button class="month-btn" onclick="selectMonth('august')">Aug</button>
-            <button class="month-btn" onclick="selectMonth('september')">Sep</button>
-            <button class="month-btn" onclick="selectMonth('october')">Oct</button>
-            <button class="month-btn" onclick="selectMonth('november')">Nov</button>
-            <button class="month-btn" onclick="selectMonth('december')">Dec</button>
+            <button class="month-btn active" onclick="selectMonth('january', this)">Jan</button>
+            <button class="month-btn" onclick="selectMonth('february', this)">Feb</button>
+            <button class="month-btn" onclick="selectMonth('march', this)">Mar</button>
+            <button class="month-btn" onclick="selectMonth('april', this)">Apr</button>
+            <button class="month-btn" onclick="selectMonth('may', this)">May</button>
+            <button class="month-btn" onclick="selectMonth('june', this)">Jun</button>
+            <button class="month-btn" onclick="selectMonth('july', this)">Jul</button>
+            <button class="month-btn" onclick="selectMonth('august', this)">Aug</button>
+            <button class="month-btn" onclick="selectMonth('september', this)">Sep</button>
+            <button class="month-btn" onclick="selectMonth('october', this)">Oct</button>
+            <button class="month-btn" onclick="selectMonth('november', this)">Nov</button>
+            <button class="month-btn" onclick="selectMonth('december', this)">Dec</button>
         </div>
 
         <!-- Tabs -->
         <div class="tabs">
-            <button class="tab active" onclick="switchTab('expenses')">Expenses</button>
-            <button class="tab" onclick="switchTab('categories')">Categories</button>
-            <button class="tab" onclick="switchTab('budgets')">Budgets</button>
-            <button class="tab" onclick="switchTab('analytics')">Analytics</button>
-            <button class="tab" onclick="switchTab('data')">Data Management</button>
+            <button class="tab active" onclick="switchTab('expenses', this)">Expenses</button>
+            <button class="tab" onclick="switchTab('categories', this)">Categories</button>
+            <button class="tab" onclick="switchTab('budgets', this)">Budgets</button>
+            <button class="tab" onclick="switchTab('analytics', this)">Analytics</button>
+            <button class="tab" onclick="switchTab('data', this)">Data Management</button>
         </div>
 
         <!-- Expenses Tab -->
@@ -61,7 +70,7 @@
             <div class="dashboard">
                 <div class="card">
                     <h2>Add New Expense</h2>
-                    <form action="/add_expense" method="POST">
+                    <form action="/add_expense" method="POST" onsubmit="return handleExpenseSubmit(event)">
                         <div class="form-group">
                             <label for="expense-month">Month:</label>
                             <select id="expense-month" name="month" required>
@@ -81,11 +90,11 @@
                         </div>
                         <div class="form-group">
                             <label for="expense-name">Expense Name:</label>
-                            <input type="text" id="expense-name" name="name" required>
+                            <input type="text" id="expense-name" name="name" required maxlength="100">
                         </div>
                         <div class="form-group">
                             <label for="expense-amount">Amount:</label>
-                            <input type="number" id="expense-amount" name="amount" step="0.01" required>
+                            <input type="number" id="expense-amount" name="amount" step="0.01" min="0.01" required>
                         </div>
                         <button type="submit" class="btn">Add Expense</button>
                     </form>
@@ -105,10 +114,10 @@
             <div class="dashboard">
                 <div class="card">
                     <h2>Add New Category</h2>
-                    <form action="/add_category" method="POST">
+                    <form action="/add_category" method="POST" onsubmit="return handleCategorySubmit(event)">
                         <div class="form-group">
                             <label for="category-name">Category Name:</label>
-                            <input type="text" id="category-name" name="category" required>
+                            <input type="text" id="category-name" name="category" required maxlength="50">
                         </div>
                         <button type="submit" class="btn">Add Category</button>
                     </form>
@@ -128,7 +137,7 @@
             <div class="dashboard">
                 <div class="card">
                     <h2>Set Budget</h2>
-                    <form action="/set_budget" method="POST">
+                    <form action="/set_budget" method="POST" onsubmit="return handleBudgetSubmit(event)">
                         <div class="form-group">
                             <label for="budget-month">Month:</label>
                             <select id="budget-month" name="month" required>
@@ -148,7 +157,7 @@
                         </div>
                         <div class="form-group">
                             <label for="budget-amount">Budget Amount:</label>
-                            <input type="number" id="budget-amount" name="amount" step="0.01" required>
+                            <input type="number" id="budget-amount" name="amount" step="0.01" min="0.01" required>
                         </div>
                         <button type="submit" class="btn">Set Budget</button>
                     </form>
@@ -163,8 +172,18 @@
             </div>
         </div>
 
+        <!-- Analytics Tab -->
         <div id="analytics-tab" class="tab-content">
-        <!-- Key Insights Cards -->
+            <!-- Analytics Loading Indicator -->
+            <div id="analyticsLoader" class="loading" style="display: none;">
+                <div class="spinner"></div>
+                <p>Syncing with analytics backend...</p>
+            </div>
+            
+            <!-- Analytics Error Display -->
+            <div id="analyticsError" class="error" style="display: none;"></div>
+
+            <!-- Key Insights Cards -->
             <div class="dashboard">
                 <div class="card">
                     <h3>📊 Key Insights</h3>
@@ -174,7 +193,7 @@
                             <div class="insight-value" id="totalSpending">$0.00</div>
                         </div>
                         <div class="insight-item">
-                            <div class="insight-label">Average Monthly</div>
+                            <div class="insight-label">Average Monthly</div>    
                             <div class="insight-value" id="avgMonthlySpending">$0.00</div>
                         </div>
                         <div class="insight-item">
@@ -189,44 +208,100 @@
                 </div>
             </div>
 
-    <!-- Charts Section -->
-        <div class="charts-container">
-            <!-- Monthly Trends Chart -->
-            <div class="card chart-card">
-                <div class="chart-container">
-                    <canvas id="monthlyTrendChart"></canvas>
+            <!-- Advanced Search -->
+            <div class="card">
+                <h3>🔍 Advanced Search</h3>
+                <div class="search-form">
+                    <div class="form-row">
+                        <div class="form-group">
+                            <label for="searchQuery">Search Term:</label>
+                            <input type="text" id="searchQuery" placeholder="Expense name...">
+                        </div>
+                        <div class="form-group">
+                            <label for="searchCategory">Category:</label>
+                            <select id="searchCategory">
+                                <option value="">All Categories</option>
+                                <!-- Categories will be populated dynamically -->
+                            </select>
+                        </div>
+                    </div>
+                    <div class="form-row">
+                        <div class="form-group">
+                            <label for="searchMonth">Month:</label>
+                            <select id="searchMonth">
+                                <option value="">All Months</option>
+                                <option value="january">January</option>
+                                <option value="february">February</option>
+                                <option value="march">March</option>
+                                <option value="april">April</option>
+                                <option value="may">May</option>
+                                <option value="june">June</option>
+                                <option value="july">July</option>
+                                <option value="august">August</option>
+                                <option value="september">September</option>
+                                <option value="october">October</option>
+                                <option value="november">November</option>
+                                <option value="december">December</option>
+                            </select>
+                        </div>
+                        <div class="form-group">
+                            <label for="minAmount">Min Amount:</label>
+                            <input type="number" id="minAmount" step="0.01" placeholder="0.00">
+                        </div>
+                        <div class="form-group">
+                            <label for="maxAmount">Max Amount:</label>
+                            <input type="number" id="maxAmount" step="0.01" placeholder="1000.00">
+                        </div>
+                    </div>
+                    <button onclick="performAdvancedSearch()" class="btn">Search Expenses</button>
+                </div>
+                <div id="searchResults" class="search-results" style="display: none;">
+                    <h4>Search Results:</h4>
+                    <div id="searchResultsList"></div>
                 </div>
             </div>
 
-            <!-- Category and Budget Charts -->
-            <div class="dashboard">
+            <!-- Charts Section -->
+            <div class="charts-container">
+                <!-- Monthly Trends Chart -->
                 <div class="card chart-card">
                     <div class="chart-container">
-                        <canvas id="categoryPieChart"></canvas>
+                        <canvas id="monthlyTrendChart"></canvas>
                     </div>
                 </div>
-                
-                <div class="card chart-card">
-                    <div class="chart-container">
-                        <canvas id="budgetComparisonChart"></canvas>
-                    </div>
-                </div>
-            </div>
-        </div>
 
-        <!-- Analytics Actions -->
-        <div class="card">
-            <h3>📈 Analytics Actions</h3>
-            <div style="display: flex; gap: 15px; flex-wrap: wrap;">
-                <button onclick="refreshAnalytics()" class="btn btn-secondary">
-                    🔄 Refresh Charts
-                </button>
-                <button onclick="exportAnalyticsData()" class="btn">
-                    📊 Export Analytics Data
-                </button>
+                <!-- Category and Budget Charts -->
+                <div class="dashboard">
+                    <div class="card chart-card">
+                        <div class="chart-container">
+                            <canvas id="categoryPieChart"></canvas>
+                        </div>
+                    </div>
+                    
+                    <div class="card chart-card">
+                        <div class="chart-container">
+                            <canvas id="budgetComparisonChart"></canvas>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Analytics Actions -->
+            <div class="card">
+                <h3>📈 Analytics Actions</h3>
+                <div style="display: flex; gap: 15px; flex-wrap: wrap;">
+                    <button onclick="refreshAnalytics()" class="btn btn-secondary">
+                        🔄 Refresh Charts
+                    </button>
+                    <button onclick="exportAnalyticsData()" class="btn">
+                        📊 Export Analytics Data
+                    </button>
+                    <button onclick="syncAnalyticsManually()" class="btn btn-secondary">
+                        🔄 Sync Analytics Backend
+                    </button>
+                </div>
             </div>
         </div>
-    </div>
 
         <!-- Data Management Tab -->
         <div id="data-tab" class="tab-content">
@@ -234,8 +309,10 @@
                 <div class="card">
                     <h2>Import/Export Data</h2>
                     <p>Import or export your data to CSV files for backup or analysis.</p>
-                    <button onclick="importData()" class="btn">Import from CSV</button>
-                    <button onclick="exportData()" class="btn">Export to CSV</button>
+                    <div style="display: flex; gap: 10px; margin-top: 15px;">
+                        <button onclick="importData()" class="btn">Import from CSV</button>
+                        <button onclick="exportData()" class="btn">Export to CSV</button>
+                    </div>
                 </div>
 
                 <div class="card">
@@ -248,8 +325,20 @@
                         <button onclick="clearData('all')" class="btn btn-danger">Clear All Data</button>
                     </div>
                 </div>
+
+                <div class="card">
+                    <h2>Analytics Management</h2>
+                    <p>Manage your analytics database and cached data.</p>
+                    <div style="display: flex; gap: 10px; flex-wrap: wrap; margin-top: 15px;">
+                        <button onclick="syncAnalyticsManually()" class="btn btn-secondary">Sync Analytics DB</button>
+                        <button onclick="clearAnalyticsCache()" class="btn btn-secondary btn-small">Clear Analytics Cache</button>
+                    </div>
+                </div>
             </div>
         </div>
     </div>
+
+    <!-- Success/Error Toast Messages -->
+    <div id="toast" class="toast" style="display: none;"></div>
 </body>
 </html>
